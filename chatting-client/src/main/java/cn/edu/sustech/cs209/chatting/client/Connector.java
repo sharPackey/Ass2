@@ -15,7 +15,7 @@ public class Connector implements Runnable {
     private Socket socket;
     private static ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
-    private Controller controller;
+    private final Controller controller;
 
     @Override
     public void run() {
@@ -49,7 +49,7 @@ public class Connector implements Runnable {
         try{
             this.socket = new Socket("localhost", 8080);
             outputStream = new ObjectOutputStream(this.socket.getOutputStream());
-            this.inputStream = new ObjectInputStream(this.socket.getInputStream());
+            inputStream = new ObjectInputStream(this.socket.getInputStream());
         } catch (IOException e){
             e.printStackTrace();
         }

@@ -117,15 +117,15 @@ public class Controller implements Initializable {
                     }
                 }
         );
-        emojiComboBox.getItems().add("\u26C4");
+        emojiComboBox.getItems().add("⛄");
         emojiComboBox.getItems().add("\uD83E\uDD17");
         emojiComboBox.getItems().add("\uD83E\uDD22");
         emojiComboBox.getItems().add("\uD83E\uDD26\u200D");
         emojiComboBox.getItems().add("\uD83E\uDD37\u200D");
-        emojiComboBox.getItems().add("\u2764");
+        emojiComboBox.getItems().add("❤");
         emojiComboBox.getItems().add("\uD83D\uDE02");
-        emojiComboBox.getItems().add("\u2640");
-        emojiComboBox.getItems().add("\u2642");
+        emojiComboBox.getItems().add("♀");
+        emojiComboBox.getItems().add("♂");
 
     }
 
@@ -217,14 +217,12 @@ public class Controller implements Initializable {
                 selected.sort(String::compareToIgnoreCase);
                 selectedMembers.setText(
                         Arrays.toString(selected.toArray())
-                                .replace("[", "")
-                                .replace("]", "")
+                                .replace("[", "").replace("]", "")
                 );
             }
         });
 
         Button okBtn = new Button("OK");
-
         okBtn.setOnAction(event -> {
             stage.close();
         });
@@ -412,7 +410,7 @@ public class Controller implements Initializable {
                     HBox wrapper = new HBox();
                     // TODO: member>=3
                     Label chatNameLabel = new Label(chat.getChatName());
-                    if(chat.getMembers().size() > 3){
+                    if(chat.getMembers().size() >= 3){
                         chatNameLabel.setText(
                                 chat.getThree() + "..." + "[" + chat.getMembers().size() + "]"
                         );
