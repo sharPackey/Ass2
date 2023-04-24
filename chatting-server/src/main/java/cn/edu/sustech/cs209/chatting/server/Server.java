@@ -59,7 +59,6 @@ public class Server {
 
                     if(clientMsg.getType() == MessageType.CONNECTED){
                         this.username = clientMsg.getSentBy();
-
                         clientServiceMap.put(this.username, this);
                         UserList.addUser(this.username);
                         clientServiceMap.forEach((s, clientService) -> clientService.sendUserList());
@@ -79,13 +78,12 @@ public class Server {
                                 try {
                                     sendTo(s, clientMsg);
                                 } catch (IOException e) {
-                                    e.printStackTrace();
+                                    throw new RuntimeException(e);
                                 }
                             }
                         });
                     }
                 } catch (IOException | ClassNotFoundException e) {
-                    System.out.println("NO CONNECTION");
                     clientServiceMap.remove(username);
                     UserList.removeUser(username);
                     clientServiceMap.forEach((s, clientService) -> clientService.sendUserList());
@@ -117,6 +115,4 @@ public class Server {
         }
 
     }
-
-
 }

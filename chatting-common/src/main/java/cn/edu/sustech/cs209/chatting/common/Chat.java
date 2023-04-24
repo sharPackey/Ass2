@@ -21,16 +21,8 @@ public class Chat {
         return chatType;
     }
 
-    public void setChatType(ChatType chatType) {
-        this.chatType = chatType;
-    }
-
     public String getChatName() {
         return chatName;
-    }
-
-    public void setChatName(String chatName) {
-        this.chatName = chatName;
     }
 
     public List<String> getMembers() {
@@ -42,10 +34,9 @@ public class Chat {
     }
 
     public String memberString(){
-        String ret = Arrays.toString(members.toArray());
-        ret = ret.replace("[", "");
-        ret = ret.replace("]", "");
-        return ret;
+        String newMembers = Arrays.toString(members.toArray());
+        newMembers = newMembers.replace("[", "").replace("]", "");
+        return newMembers;
     }
 
     public List<Message> getMessageList() {

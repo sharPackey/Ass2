@@ -2,7 +2,7 @@ package cn.edu.sustech.cs209.chatting.client;
 
 import cn.edu.sustech.cs209.chatting.common.*;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
+import javafx.collections.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -36,13 +37,17 @@ public class Controller implements Initializable {
     @FXML
     Label currentUsername;
     @FXML
-    ComboBox<String> emoji;
-    @FXML
-    Button emojiAdd;
-    @FXML
     Label currentOnlineCnt;
 
-    AtomicReference<String> selectedEmoji = new AtomicReference<>();
+    @FXML
+    private ComboBox<String> emojiComboBox;
+
+
+    public void onEmojiSelected() {
+        String selectedEmoji = emojiComboBox.getValue();
+        inputArea.appendText(selectedEmoji);
+    }
+
 
     ChatType currentType;
     String currentChatName;
@@ -112,12 +117,16 @@ public class Controller implements Initializable {
                     }
                 }
         );
+        emojiComboBox.getItems().add("\u26C4");
+        emojiComboBox.getItems().add("\uD83E\uDD17");
+        emojiComboBox.getItems().add("\uD83E\uDD22");
+        emojiComboBox.getItems().add("\uD83E\uDD26\u200D");
+        emojiComboBox.getItems().add("\uD83E\uDD37\u200D");
+        emojiComboBox.getItems().add("\u2764");
+        emojiComboBox.getItems().add("\uD83D\uDE02");
+        emojiComboBox.getItems().add("\u2640");
+        emojiComboBox.getItems().add("\u2642");
 
-        emoji = new ComboBox<>();
-        emoji.getItems().add("\uD83D\uDE00"); //😀
-        emoji.getItems().add("\uD83D\uDE02"); //😂
-        emoji.getItems().add("\uD83D\uDE05"); //😅
-        emoji.getItems().add("\uD83D\uDE0D"); //😍
     }
 
     @FXML
@@ -126,7 +135,7 @@ public class Controller implements Initializable {
 
         Stage stage = new Stage();
         ComboBox<String> userSel = new ComboBox<>();
-
+        userSel.setPrefWidth(100.0);
         UserList.getUserList().forEach(s -> {
             if(!Objects.equals(s, this.username)) {
                 userSel.getItems().add(s);
@@ -134,7 +143,7 @@ public class Controller implements Initializable {
         });
 
         Button okBtn = new Button("OK");
-        okBtn.setPadding(new Insets(10, 10, 10, 10));
+        okBtn.setPadding(new Insets(20, 20, 20, 20));
         okBtn.setOnAction(e -> {
             user.set(userSel.getSelectionModel().getSelectedItem());
             stage.close();
@@ -142,7 +151,7 @@ public class Controller implements Initializable {
 
         HBox box = new HBox(100);
         box.setAlignment(Pos.CENTER);
-        box.setPadding(new Insets(200, 200, 200, 200));
+        box.setPadding(new Insets(100, 100, 100, 100));
         box.getChildren().addAll(userSel, okBtn);
         stage.setScene(new Scene(box));
         stage.showAndWait();
@@ -154,6 +163,13 @@ public class Controller implements Initializable {
             chatList.getItems().add(chat);
             chatWithName.put(user.get(), chatList.getItems().indexOf(chat));
             chatList.getSelectionModel().select(chat);
+            Message message = new Message(MessageType.PRIVATE,
+                    username, currentChatName, this.username+"发起了一次对话");
+            Connector.send(message);
+            Chat chatt = chatList.getItems().get(chatWithName.get(currentChatName));
+            chatt.addMessage(message);
+            chatList.getItems().set(chatWithName.get(currentChatName), chatt);
+            chatList.getSelectionModel().select(chatWithName.get(currentChatName));
         }
         else if((user.get() != null) && chatWithName.containsKey(user.get())){
             chatList.getSelectionModel().select(null);
@@ -174,11 +190,10 @@ public class Controller implements Initializable {
      */
     @FXML
     public void createGroupChat() {
-
-
         Stage stage = new Stage();
         ComboBox<String> userSel = new ComboBox<>();
 
+        userSel.setPrefWidth(100);
         UserList.getUserList().forEach(s -> {
             if(!Objects.equals(s, this.username)) {
                 userSel.getItems().add(s);
@@ -227,18 +242,22 @@ public class Controller implements Initializable {
 
         final String users = selectedMembers.getText();
         if(!users.equals(username) && !chatWithName.containsKey(users)){
-            Chat chat = new Chat(ChatType.GROUP, users);
-            chat.setMembers(selected);
-            chatList.getItems().add(chat);
-            chatWithName.put(users, chatList.getItems().indexOf(chat));
-            chatList.getSelectionModel().select(chat);
-            Message message = new Message(MessageType.PRIVATE,
-                    username, currentChatName, this.username+"发起了一次对话");
+            Chat chatt = new Chat(ChatType.GROUP, users);
+            chatt.setMembers(selected);
+            chatList.getItems().add(chatt);
+            chatWithName.put(users, chatList.getItems().indexOf(chatt));
+            chatList.getSelectionModel().select(chatt);
+            String sentBy = currentChatName + ":::" + username;
+            Chat chat = chatList.getItems().get(chatWithName.get(currentChatName));
+            String sendTo = chat.memberString();
+            Message message = new Message(MessageType.GROUP,
+                    sentBy, sendTo, this.username+"发起了一次群聊");
             Connector.send(message);
-            Chat chatt = chatList.getItems().get(chatWithName.get(currentChatName));
-            chatt.addMessage(message);
-            chatList.getItems().set(chatWithName.get(currentChatName), chatt);
+            chat.addMessage(new Message(MessageType.GROUP,
+                    username, sendTo, this.username+"发起了一次群聊"));
+            chatList.getItems().set(chatWithName.get(currentChatName), chat);
             chatList.getSelectionModel().select(chatWithName.get(currentChatName));
+
         }
         else if(!users.equals(username) && chatWithName.containsKey(users)){
             chatList.getSelectionModel().select(null);

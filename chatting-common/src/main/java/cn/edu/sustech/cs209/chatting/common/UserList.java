@@ -24,9 +24,8 @@ public class UserList {
     }
 
     public static synchronized String listString(){
-        String ret = Arrays.toString(userList.toArray());
-        ret = ret.replace("[", "");
-        ret = ret.replace("]", "");
-        return ret;
+        String newList = Arrays.toString(userList.toArray());
+        newList = newList.replace("[", "").replace("]", "");
+        return newList;
     }
 }
